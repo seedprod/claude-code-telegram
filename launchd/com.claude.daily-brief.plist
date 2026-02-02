@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.claude.daily-brief</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <!-- UPDATE: Path to claude binary -->
+        <string>/usr/local/bin/claude</string>
+        <string>-p</string>
+        <string>Run the daily-brief skill</string>
+        <string>--allowedTools</string>
+        <string>Read,WebSearch,Bash,Skill</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <!-- UPDATE: Path to your workspace with CLAUDE.md -->
+    <string>/Users/YOUR_USERNAME/your-workspace</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+    </dict>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <!-- Run at 7:00 AM every day -->
+        <key>Hour</key>
+        <integer>7</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/daily-brief.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/tmp/daily-brief.error.log</string>
+</dict>
+</plist>
