@@ -1,0 +1,14 @@
+# Daily briefing timer -- systemd equivalent of launchd StartCalendarInterval
+# Runs claude-daily-brief.service every day at 7:00 AM
+
+[Unit]
+Description=Claude Code Daily Briefing Timer
+Requires=claude-daily-brief.service
+
+[Timer]
+# Run at 7:00 AM every day
+OnCalendar=*-*-* 07:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

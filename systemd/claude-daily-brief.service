@@ -1,0 +1,23 @@
+[Unit]
+Description=Claude Code Daily Briefing
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+
+# UPDATE: Path to claude binary
+ExecStart=/usr/local/bin/claude -p "Run the daily-brief skill" \
+    --allowedTools Read,WebSearch,Bash,Skill
+
+# UPDATE: Path to your workspace with CLAUDE.md
+WorkingDirectory=/home/YOUR_USERNAME/your-workspace
+
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:/home/YOUR_USERNAME/.local/bin
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=claude-daily-brief
+
+[Install]
+WantedBy=default.target

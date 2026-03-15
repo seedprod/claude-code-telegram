@@ -1,4 +1,8 @@
 python-telegram-bot>=20.0
 mistune>=3.0
-# Optional: Voice transcription (Apple Silicon only)
+
+# Optional: Voice transcription (install one based on your platform)
+# macOS (Apple Silicon):
 # mlx-whisper
+# Linux:
+# faster-whisper

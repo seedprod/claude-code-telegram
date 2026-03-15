@@ -1,0 +1,29 @@
+[Unit]
+Description=Claude Code Telegram Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+
+# UPDATE: Path to your Python and telegram-bot.py
+ExecStart=/usr/bin/python3 /home/YOUR_USERNAME/claude-code-telegram/telegram-bot.py
+
+# UPDATE: Path to repo directory
+WorkingDirectory=/home/YOUR_USERNAME/claude-code-telegram
+
+# Load .env file for secrets
+EnvironmentFile=/home/YOUR_USERNAME/claude-code-telegram/.env
+
+# Keep PATH sane so 'claude' binary is found
+Environment=PATH=/usr/local/bin:/usr/bin:/bin:/home/YOUR_USERNAME/.local/bin:/home/YOUR_USERNAME/.npm-global/bin
+
+Restart=on-failure
+RestartSec=10
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=claude-telegram-bot
+
+[Install]
+WantedBy=default.target

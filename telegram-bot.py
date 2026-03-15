@@ -36,12 +36,28 @@ WORKSPACE = os.environ.get("CLAUDE_WORKSPACE", str(Path.home()))
 CLAUDE_PATH = os.environ.get("CLAUDE_PATH", "claude")
 SESSION_FILE = Path.home() / ".telegram-claude-sessions.json"
 
-# Optional: Voice transcription (requires mlx-whisper on Apple Silicon)
-try:
-    import mlx_whisper
-    VOICE_ENABLED = True
-except ImportError:
-    VOICE_ENABLED = False
+# Optional: Voice transcription
+# macOS (Apple Silicon): pip install mlx-whisper
+# Linux: pip install faster-whisper
+import platform
+VOICE_ENABLED = False
+VOICE_BACKEND = None
+
+if platform.system() == "Darwin":
+    try:
+        import mlx_whisper
+        VOICE_ENABLED = True
+        VOICE_BACKEND = "mlx"
+    except ImportError:
+        pass
+else:
+    try:
+        from faster_whisper import WhisperModel
+        _whisper_model = WhisperModel("small", device="cpu", compute_type="int8")
+        VOICE_ENABLED = True
+        VOICE_BACKEND = "faster-whisper"
+    except ImportError:
+        pass
 
 
 def load_sessions() -> dict:
@@ -55,15 +71,20 @@ def save_sessions(sessions: dict):
 
 
 def transcribe_audio(audio_path: str) -> str:
-    """Transcribe audio file using mlx-whisper (Apple Silicon only)."""
+    """Transcribe audio file. Uses mlx-whisper on macOS, faster-whisper on Linux."""
     if not VOICE_ENABLED:
         return None
-    result = mlx_whisper.transcribe(
-        audio_path,
-        path_or_hf_repo="mlx-community/whisper-small-mlx",
-        verbose=False
-    )
-    return result.get("text", "").strip()
+    if VOICE_BACKEND == "mlx":
+        result = mlx_whisper.transcribe(
+            audio_path,
+            path_or_hf_repo="mlx-community/whisper-small-mlx",
+            verbose=False
+        )
+        return result.get("text", "").strip()
+    elif VOICE_BACKEND == "faster-whisper":
+        segments, _ = _whisper_model.transcribe(audio_path)
+        return " ".join(s.text for s in segments).strip()
+    return None
 
 
 class TelegramRenderer(mistune.HTMLRenderer):
@@ -214,7 +235,11 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_voice(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle voice messages by transcribing and sending to Claude."""
     if not VOICE_ENABLED:
-        await update.message.reply_text("Voice messages not supported (requires mlx-whisper on Apple Silicon)")
+        await update.message.reply_text(
+            "Voice messages not supported.\n"
+            "macOS: pip install mlx-whisper\n"
+            "Linux: pip install faster-whisper"
+        )
         return
 
     user_id = update.effective_user.id
@@ -301,9 +326,22 @@ def main():
         print("Set TELEGRAM_BOT_TOKEN in .env file")
         return
 
+    if not ALLOWED_USERS:
+        print()
+        print("╔══════════════════════════════════════════════════════════════╗")
+        print("║  WARNING: ALLOWED_USERS is not set                          ║")
+        print("║                                                              ║")
+        print("║  Anyone who finds your bot's username can send it messages  ║")
+        print("║  and run Claude Code with full tool access on this machine. ║")
+        print("║                                                              ║")
+        print("║  Set ALLOWED_USERS=your_telegram_id in your .env file.      ║")
+        print("║  Get your ID from @userinfobot on Telegram.                 ║")
+        print("╚══════════════════════════════════════════════════════════════╝")
+        print()
+
     print(f"Starting bot...")
     print(f"Workspace: {WORKSPACE}")
-    print(f"Allowed users: {ALLOWED_USERS or 'Everyone (set ALLOWED_USERS to restrict)'}")
+    print(f"Allowed users: {ALLOWED_USERS or 'Everyone (ALLOWED_USERS not set -- see warning above)'}")
     print(f"Voice enabled: {VOICE_ENABLED}")
 
     app = Application.builder().token(BOT_TOKEN).build()
