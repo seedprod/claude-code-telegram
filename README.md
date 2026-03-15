@@ -50,6 +50,14 @@ https://github.com/seedprod/claude-code-telegram - help me set this up
 
 Claude will clone the repo and walk you through the entire setup.
 
+Claude will walk you through:
+1. Creating a Telegram bot with @BotFather
+2. Getting your user ID from @userinfobot
+3. Configuring the `.env` file
+4. Installing the telegram-sender skill globally
+5. Setting up your service manager (launchd on macOS, systemd on Linux)
+6. (Optional) Setting up scheduled skills like daily briefings
+
 ---
 
 ## Manual Setup

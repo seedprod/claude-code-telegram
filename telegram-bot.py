@@ -326,9 +326,22 @@ def main():
         print("Set TELEGRAM_BOT_TOKEN in .env file")
         return
 
+    if not ALLOWED_USERS:
+        print()
+        print("╔══════════════════════════════════════════════════════════════╗")
+        print("║  WARNING: ALLOWED_USERS is not set                          ║")
+        print("║                                                              ║")
+        print("║  Anyone who finds your bot's username can send it messages  ║")
+        print("║  and run Claude Code with full tool access on this machine. ║")
+        print("║                                                              ║")
+        print("║  Set ALLOWED_USERS=your_telegram_id in your .env file.      ║")
+        print("║  Get your ID from @userinfobot on Telegram.                 ║")
+        print("╚══════════════════════════════════════════════════════════════╝")
+        print()
+
     print(f"Starting bot...")
     print(f"Workspace: {WORKSPACE}")
-    print(f"Allowed users: {ALLOWED_USERS or 'Everyone (set ALLOWED_USERS to restrict)'}")
+    print(f"Allowed users: {ALLOWED_USERS or 'Everyone (ALLOWED_USERS not set -- see warning above)'}")
     print(f"Voice enabled: {VOICE_ENABLED}")
 
     app = Application.builder().token(BOT_TOKEN).build()
